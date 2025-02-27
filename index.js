@@ -28,36 +28,46 @@ function loadUMDModule(filePath) {
 
   vm.runInNewContext(umdCode, context)
 
-  // 返回解析后的模块内容
-  return context.module.exports;
+  console.log(`context: ${context}`);
+  console.log('====================');
+
+  return {
+    component: context.module.exports.default,
+    styles: context.document.head.innerHTML
+  }
 }
 
-const UMDComponent = loadUMDModule('./oversea_ainvest-aime@1.0.1-beta.4.js');
+const { component, styles } = loadUMDModule('./oversea_ainvest-aime@1.0.1-beta.4.js');
 
-console.log(UMDComponent);
+console.log(`component: ${component}`);
+console.log('====================');
+console.log(`styles: ${styles}`);
+console.log('====================');
 
 // 使用 ReactDOMServer 渲染组件
-const renderedComponent = ReactDOMServer.renderToString(React.createElement(UMDComponent.default, {
-  label: '按钮',
+const renderedComponent = ReactDOMServer.renderToString(React.createElement(component, {
+  label: 'Hello SSR!',
 }));
 
-console.log(renderedComponent);
+console.log(`renderedComponent: ${renderedComponent}`);
+console.log('====================');
 
 // 输出渲染结果到 HTML 文件
 const outputPath = path.join(__dirname, 'output.html');
 const htmlContent = `
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UMD React Component</title>
-</head>
-<body>
+  <!DOCTYPE html>
+  <html lang="zh">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>UMD React Component</title>
+      ${styles}
+  </head>
+  <body>
     <div id="root">${renderedComponent}</div>
-</body>
-</html>
-`;
+  </body>
+  </html>
+  `;
 
 fs.writeFileSync(outputPath, htmlContent);
-console.log(`渲染结果已写入 ${outputPath}`);
+console.log('结果已输出到 output.html');
